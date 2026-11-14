@@ -1,5 +1,7 @@
 # Adapters
 
+<p align="center"><img src="assets/readme-hero.svg" width="100%" alt="dimension-adapters project banner" /></p>
+
 Find the instructions to list, write, test and submit an adapter [here](https://docs.llama.fi/list-your-project/other-dashboards)
 
 ## Install dependencies
