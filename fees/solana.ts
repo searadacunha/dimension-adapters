@@ -7,6 +7,8 @@ import { METRIC } from "../helpers/metrics";
 
 const SIMD_0096_ACTIVATION_DATE = 1739318400 // after 2025-02-12 priority fees will go 100% to validators;
 const PRIORITY_FEES_REQUIRED_FROM = 1704067200 // 2024-01-01, from here priority fee txs land every few seconds, so missing or stale rows mean Allium lag
+const BASE_FEES_TO_VALIDATORS = 'Transaction Base Fees To Validators'
+const PRIORITY_FEES_TO_VALIDATORS = 'Transaction Priority Fees To Validators'
 
 const fetch = async (options: FetchOptions) => {
   const dailyFees = options.createBalances()
@@ -49,21 +51,36 @@ const fetch = async (options: FetchOptions) => {
   }
   const totalBaseFees = totalFees - totalPriorityFees
 
+  // Same split as the burn below. Base fee is 50/50 burn and leader
+  // (https://docs.anza.xyz/implemented-proposals/transaction-fees). Before SIMD-0096
+  // priority fees were 50/50 too; since 2025-02-12 the leader keeps all of them
+  // (https://github.com/solana-foundation/solana-improvement-documents/blob/main/proposals/0096-reward-full-priority-fee-to-validator.md).
+  // The boundary is endTimestamp, matching the burn, so a window is not split in two.
+  // Validator amounts are the residual of that same division, so fees = burn + validator share.
+  const burnedBaseFees = totalBaseFees / 2
+  const priorityFeesBurned = options.endTimestamp < SIMD_0096_ACTIVATION_DATE
+  const burnedPriorityFees = priorityFeesBurned ? totalPriorityFees / 2 : 0
+  const baseFeesToValidators = totalBaseFees - burnedBaseFees
+  const priorityFeesToValidators = totalPriorityFees - burnedPriorityFees
+
+  const dailySupplySideRevenue = options.createBalances()
+
   dailyFees.add(ADDRESSES.solana.SOL, totalBaseFees, METRIC.TRANSACTION_BASE_FEES)
   dailyFees.add(ADDRESSES.solana.SOL, totalPriorityFees, METRIC.TRANSACTION_PRIORITY_FEES)
 
-  // 50% base fees to validator, 50% base fees will be burned
-  dailyRevenue.add(ADDRESSES.solana.SOL, totalBaseFees / 2, METRIC.TRANSACTION_BASE_FEES)
-
-  if (options.endTimestamp < SIMD_0096_ACTIVATION_DATE) {
-    // priority fees were going 50% to validator and remaining were getting burnt before SIMD-0096;
-    dailyRevenue.add(ADDRESSES.solana.SOL, totalPriorityFees / 2, METRIC.TRANSACTION_PRIORITY_FEES)
+  dailyRevenue.add(ADDRESSES.solana.SOL, burnedBaseFees, METRIC.TRANSACTION_BASE_FEES)
+  if (priorityFeesBurned) {
+    dailyRevenue.add(ADDRESSES.solana.SOL, burnedPriorityFees, METRIC.TRANSACTION_PRIORITY_FEES)
   }
+
+  dailySupplySideRevenue.add(ADDRESSES.solana.SOL, baseFeesToValidators, BASE_FEES_TO_VALIDATORS)
+  dailySupplySideRevenue.add(ADDRESSES.solana.SOL, priorityFeesToValidators, PRIORITY_FEES_TO_VALIDATORS)
 
   return {
     dailyFees,
     dailyRevenue,
-    dailyHoldersRevenue: dailyRevenue,
+    dailySupplySideRevenue,
+    dailyHoldersRevenue: dailyRevenue.clone(1),
   };
 }
 
@@ -78,6 +95,7 @@ const adapter: Adapter = {
     Fees: 'Transaction fees paid by users',
     Revenue: 'Burned fees: 50% of base fees, and before 2025-02-12 also 50% of priority fees',
     HoldersRevenue: 'Burned fees: 50% of base fees, and before 2025-02-12 also 50% of priority fees',
+    SupplySideRevenue: 'Transaction fees paid to the leader validator: half of the base fee, half of the priority fee before 2025-02-12, and the whole priority fee since then.',
   },
   breakdownMethodology: {
     Fees: {
@@ -91,6 +109,10 @@ const adapter: Adapter = {
     HoldersRevenue: {
       [METRIC.TRANSACTION_BASE_FEES]: '50% transaction base fees will be burned',
       [METRIC.TRANSACTION_PRIORITY_FEES]: 'Before 2025-02-12, 50% priority fees will be burned',
+    },
+    SupplySideRevenue: {
+      [BASE_FEES_TO_VALIDATORS]: 'Half of the base fee, paid to the leader validator.',
+      [PRIORITY_FEES_TO_VALIDATORS]: 'Priority fees paid to the leader validator: half before 2025-02-12, all of them since.',
     },
   }
 }
