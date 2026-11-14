@@ -1,0 +1,31 @@
+# Licensing notice for this fork
+
+This repository is a fork of [DefiLlama/dimension-adapters](https://github.com/DefiLlama/dimension-adapters).
+
+The underlying source code, historical contributions and third-party components are **not relicensed by this file**. Upstream did not provide a root LICENSE at the time this notice was prepared; do not infer from this fork a permission to reuse upstream material. Review upstream and individual contributors' applicable terms separately.
+
+Only **original, copyrightable contributions authored by Benjamin Da Cunha and added independently in this fork**, if any, are offered under the MIT License reproduced below. To the extent a file contains both upstream code and new edits, this permission is only for the new independently owned portion, not the combined upstream work. External logos, source material, and third-party data are not covered.
+
+---
+
+MIT License
+
+Copyright (c) 2026 Benjamin Da Cunha
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
