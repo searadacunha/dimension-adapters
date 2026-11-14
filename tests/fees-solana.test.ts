@@ -88,7 +88,7 @@ test('activation day: only the priority fees paid before slot 320112000 are half
 })
 
 test('after the activation: the leader keeps every priority fee', async () => {
-  for (const start of [POST_DAY, 1794700800 /* 2026-11-14 */]) {
+  for (const start of [POST_DAY, 1794700800 /* 2026-11-15 */]) {
     const res = await run(start, {
       total_fees: 2_000_000_000_000, total_priority_fees: 1_700_000_000_000,
       pre_simd_0096_priority_fees: 0, fees_lag_seconds: 1,
