@@ -1,0 +1,51 @@
+# Fork-only CI for fees/solana.ts. Upstream runs its adapters with secrets this fork does not have,
+# so this job type-checks the repository and runs the offline and on-chain tests of the Solana adapter.
+name: solana fees tests
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run ts-check
+      - run: pnpm run ts-check-cli
+      - name: Type-check the tests
+        run: npx tsc --noEmit --strict --esModuleInterop --resolveJsonModule --skipLibCheck --target ES2020 --module commonjs --moduleResolution node --lib ES2020,DOM --types node tests/fees-solana.test.ts tests/solana-fee-split.live.test.ts
+      - name: Offline unit test of fees/solana.ts
+        run: node --test -r ts-node/register/transpile-only tests/fees-solana.test.ts
+
+  on-chain:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Fee split on real blocks around SIMD-0096 (public RPC)
+        run: node --test -r ts-node/register/transpile-only tests/solana-fee-split.live.test.ts
