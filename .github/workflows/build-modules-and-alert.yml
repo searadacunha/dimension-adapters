@@ -1,8 +1,9 @@
 name: Build dimensionModules and alert unlisted projects
 
+# Fork-only safeguard: upstream automatic release and external alert must not run on this personal fork.
+# A maintainer may still inspect this workflow by manual dispatch.
 on:
-  push:
-    branches: [ "master" ]
+  workflow_dispatch:
 
 jobs:
   build-and-upload:
