@@ -1,5 +1,7 @@
 name: test-adapter
-on: [pull_request]
+# Fork-only safeguard: upstream adapter test needs Allium credentials unavailable in this fork.
+# Fork-specific Solana tests and ts-check remain on automatic CI.
+on: workflow_dispatch
 jobs:
   test:
     runs-on: ubuntu-latest
