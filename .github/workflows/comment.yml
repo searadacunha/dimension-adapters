@@ -1,8 +1,7 @@
 name: comment-pr
+# Fork-only safeguard: upstream comment automation is not triggered on this fork.
 on:
-  workflow_run:
-    workflows: ["test-adapter"]
-    types: [completed]
+  workflow_dispatch:
 
 permissions:
   pull-requests: write
